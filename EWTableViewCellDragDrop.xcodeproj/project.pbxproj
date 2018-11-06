@@ -15,6 +15,8 @@
 		7905250521896FCA00AB19AB /* EWTableViewCellDragDropTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7905250421896FCA00AB19AB /* EWTableViewCellDragDropTests.swift */; };
 		7905251021896FCA00AB19AB /* EWTableViewCellDragDropUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7905250F21896FCA00AB19AB /* EWTableViewCellDragDropUITests.swift */; };
 		7905251E218970CD00AB19AB /* EWDragTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7905251D218970CD00AB19AB /* EWDragTableViewCell.swift */; };
+		79DE5D8A21913AA400D55AA5 /* EWGroupTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DE5D8921913AA400D55AA5 /* EWGroupTableViewController.swift */; };
+		79DE5D8C21913CEB00D55AA5 /* EWPlainTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DE5D8B21913CEB00D55AA5 /* EWPlainTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		7905250F21896FCA00AB19AB /* EWTableViewCellDragDropUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EWTableViewCellDragDropUITests.swift; sourceTree = "<group>"; };
 		7905251121896FCA00AB19AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7905251D218970CD00AB19AB /* EWDragTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EWDragTableViewCell.swift; sourceTree = "<group>"; };
+		79DE5D8921913AA400D55AA5 /* EWGroupTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EWGroupTableViewController.swift; sourceTree = "<group>"; };
+		79DE5D8B21913CEB00D55AA5 /* EWPlainTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EWPlainTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +105,8 @@
 			children = (
 				790524EF21896F9300AB19AB /* AppDelegate.swift */,
 				790524F121896F9300AB19AB /* ViewController.swift */,
+				79DE5D8921913AA400D55AA5 /* EWGroupTableViewController.swift */,
+				79DE5D8B21913CEB00D55AA5 /* EWPlainTableViewController.swift */,
 				7905251D218970CD00AB19AB /* EWDragTableViewCell.swift */,
 				790524F321896F9300AB19AB /* Main.storyboard */,
 				790524F621896FCA00AB19AB /* Assets.xcassets */,
@@ -261,6 +267,8 @@
 			files = (
 				7905251E218970CD00AB19AB /* EWDragTableViewCell.swift in Sources */,
 				790524F221896F9300AB19AB /* ViewController.swift in Sources */,
+				79DE5D8A21913AA400D55AA5 /* EWGroupTableViewController.swift in Sources */,
+				79DE5D8C21913CEB00D55AA5 /* EWPlainTableViewController.swift in Sources */,
 				790524F021896F9300AB19AB /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
