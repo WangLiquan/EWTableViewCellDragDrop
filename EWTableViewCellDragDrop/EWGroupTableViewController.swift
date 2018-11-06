@@ -121,7 +121,7 @@ extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
 //MARK: - UITableView ios11以下版本拖拽
 extension EWGroupTableViewController{
     /***
-     *  iOS11以下版本,实际上拖拽的不是cell,而是cell的快照imageView.并且同时将cell隐藏,当拖拽手势结束时,再调换cell位置,进行数据修改.并且将imageView删除.再将cell展示出来,就实现了拖拽动画.
+     *  iOS11以下版本,实际上拖拽的不是cell,而是cell的快照imageView.并且同时将cell隐藏,当拖拽手势结束时,通过moveRow方法调换cell位置,进行数据修改.并且将imageView删除.再将cell展示出来,就实现了拖拽动画.
      */
     /// 手势方法
     @objc func longPressGesture(_ recognise: UILongPressGestureRecognizer) {
