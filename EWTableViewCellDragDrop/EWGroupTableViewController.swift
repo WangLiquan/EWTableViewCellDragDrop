@@ -9,10 +9,15 @@
 import UIKit
 var colorArr = [UIColor.gray,UIColor.green,UIColor.yellow,UIColor.blue,UIColor.brown]
 
+struct EWColorModel {
+    var title: String?
+    var color: UIColor?
+}
+/// group型tableView.两个section
 class EWGroupTableViewController: UIViewController {
     private var tableView:UITableView!
-    
-    var modelArray: [EWColorModel] = {
+    /// section1的modelArray
+    private var modelArray: [EWColorModel] = {
         var array = [EWColorModel]()
         for i in 0..<5{
             var model = EWColorModel()
@@ -22,6 +27,7 @@ class EWGroupTableViewController: UIViewController {
         }
         return array
     }()
+    /// section2的modelArray
     var secondModelArray: [EWColorModel] = {
         var array = [EWColorModel]()
         for i in 0..<5{
@@ -32,18 +38,23 @@ class EWGroupTableViewController: UIViewController {
         }
         return array
     }()
-
+    /*
+     * iOS11以下型号,通过自己写长按手势实现拖拽功能,需要如下属性
+     */
+    /// 手势储存point,保证有两个,为初始点和结束点
     private var touchPoints: [CGPoint] = []
+    /// 手势选中cell.index
     private var sourceIndexPath: IndexPath?
+    /// 将手势选中cell以image形式表现
     private var cellImageView = UIImageView()
-    private var gestureRecognizer: UILongPressGestureRecognizer?
+    /// 被手势选中的cell
     private var currentCell:EWDragTableViewCell!
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        tableView = UITableView(frame: CGRect(x: 0, y: 88, width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height - 88), style: .grouped)
+        tableView = UITableView(frame: UIScreen.main.bounds, style: .grouped)
         /// 添加三行,阻止tableView.reload方法后的闪动效果
         tableView.estimatedRowHeight = 0;
         tableView.estimatedSectionFooterHeight = 0
@@ -52,7 +63,6 @@ class EWGroupTableViewController: UIViewController {
         tableView.backgroundColor = .white
         tableView.separatorStyle = .none
         tableView.delegate = self
-
         tableView.dataSource = self
         tableView.register(EWDragTableViewCell.self, forCellReuseIdentifier: EWDragTableViewCell.identifier)
         self.view.addSubview(tableView)
@@ -60,131 +70,28 @@ class EWGroupTableViewController: UIViewController {
         if #available(iOS 11.0, *) {
             tableView.dragDelegate = self
             tableView.dropDelegate = self
+            /// 程序内拖拽功能开启,默认ipad为true,iphone为false
             tableView.dragInteractionEnabled = true
-            tableView.contentInsetAdjustmentBehavior = .never
-        }else{
-            self.automaticallyAdjustsScrollViewInsets = false
+            /// 系统自动调整scrollView.contentInset保证滚动视图不被tabbar,navigationbar遮挡
+            tableView.contentInsetAdjustmentBehavior = .scrollableAxes
+        } else {
+            /// 系统自动调整scrollView.contentInset保证滚动视图不被tabbar,navigationbar遮挡
+            self.automaticallyAdjustsScrollViewInsets = true
         }
     }
-
+    /// 为cell注册拖拽方法
     private func dragCell(cell:UITableViewCell?){
         if #available(iOS 11.0, *)  {
-            cell?.userInteractionEnabledWhileDragging = true
+            /// 当cell在拖拽过程中是否允许交互
+            cell?.userInteractionEnabledWhileDragging = false
         }else {
+            /// iOS 11.0以下版本,为cell添加长按手势
             let pan = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressGesture))
             cell?.addGestureRecognizer(pan)
         }
     }
 }
-//MARK: - UITableView ios11以下版本拖拽
-extension EWGroupTableViewController{
-    @objc func longPressGesture(_ recognise: UILongPressGestureRecognizer) {
-        let currentPoint: CGPoint = recognise.location(in: tableView)
-        let currentIndexPath = tableView.indexPathForRow(at: currentPoint)
-        guard let indexPath = currentIndexPath else {
-            initCellImageView()
-            return
-        }
-        if indexPath.section == 0 {
-            guard indexPath.row < self.modelArray.count else {
-                initCellImageView()
-                return
-            }
-        } else {
-            guard indexPath.row < self.secondModelArray.count else {
-                initCellImageView()
-                return
-            }
-        }
-        switch recognise.state {
-        case .began:
-            longPressGestureBegan(recognise)
-            break
-        case .changed:
-            longPressGestureChanged(recognise)
-            break
-        default:
-            self.touchPoints.removeAll()
-            if let cell = tableView.cellForRow(at: sourceIndexPath! ){
-                cell.isHidden = false
-            }
-            initCellImageView()
-            break
-        }
-    }
-    private func longPressGestureBegan(_ recognise: UILongPressGestureRecognizer) {
-        self.gestureRecognizer = recognise
-        let currentPoint: CGPoint = recognise.location(in: tableView)
-        let currentIndexPath = tableView.indexPathForRow(at: currentPoint)
-        if (currentIndexPath != nil) {
-            sourceIndexPath = currentIndexPath
-            currentCell = tableView.cellForRow(at: currentIndexPath! ) as? EWDragTableViewCell
-            cellImageView = getImageView(currentCell)
-            cellImageView.frame = currentCell.frame
-            tableView.addSubview(cellImageView)
-            self.currentCell.isHidden = true
-        }
-    }
-    private func longPressGestureChanged(_ recognise: UILongPressGestureRecognizer) {
-        let selectedPoint: CGPoint = recognise.location(in: tableView)
-        var selectedIndexPath = tableView.indexPathForRow(at: selectedPoint)
-        self.touchPoints.append(selectedPoint)
-        if self.touchPoints.count > 2 {
-            self.touchPoints.remove(at: 0)
-        }
-        var center = cellImageView.center
-        center.y = selectedPoint.y
-        // 快照随触摸点x值改变量移动
-        let Ppoint = self.touchPoints.first
-        let Npoint = self.touchPoints.last
-        let moveX = Npoint!.x - Ppoint!.x
-        center.x += moveX
-        cellImageView.center = center
-        if ((selectedIndexPath != nil) && selectedIndexPath != sourceIndexPath) {
-            tableView.beginUpdates()
-            var cellmode: EWColorModel
-            if sourceIndexPath!.section == 0 {
-                cellmode = modelArray[sourceIndexPath!.row]
-                self.modelArray.remove(at: sourceIndexPath!.row)
-            } else {
-                cellmode = secondModelArray[sourceIndexPath!.row]
-                self.secondModelArray.remove(at: sourceIndexPath!.row)
-            }
-            objc_sync_enter(self)
-            if selectedIndexPath?.section == 0 {
-                if selectedIndexPath!.row < self.modelArray.count {
-                    self.modelArray.insert(cellmode, at: selectedIndexPath!.row)
-                }else {
-                    self.modelArray.append(cellmode)
-                }
-            } else {
-                if selectedIndexPath!.row < self.secondModelArray.count {
-                    self.secondModelArray.insert(cellmode, at: selectedIndexPath!.row)
-                }else {
-                    self.secondModelArray.append(cellmode)
-                }
-            }
-            objc_sync_exit(self)
-            self.tableView.moveRow(at: sourceIndexPath!, to: selectedIndexPath!)
-            tableView.endUpdates()
-            sourceIndexPath = selectedIndexPath
-        }
-    }
-    private func initCellImageView() {
-        self.cellImageView.removeFromSuperview()
-        tableView.reloadData()
-    }
-    // 截图
-    private func getImageView(_ cell: UITableViewCell) -> UIImageView {
-        UIGraphicsBeginImageContextWithOptions(cell.bounds.size, false, 0)
-        cell.layer.render(in: UIGraphicsGetCurrentContext()!)
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        let imageView = UIImageView(image: image)
-        return imageView
-    }
-}
-
+//MARK: - UITableView代理方法
 extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
@@ -210,8 +117,166 @@ extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
         cell.backgroundColor = model.color
         return cell
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+}
+//MARK: - UITableView ios11以下版本拖拽
+extension EWGroupTableViewController{
+    /***
+     *  iOS11以下版本,实际上拖拽的不是cell,而是cell的快照imageView.并且同时将cell隐藏,当拖拽手势结束时,再调换cell位置,进行数据修改.并且将imageView删除.再将cell展示出来,就实现了拖拽动画.
+     */
+    /// 手势方法
+    @objc func longPressGesture(_ recognise: UILongPressGestureRecognizer) {
+        let currentPoint: CGPoint = recognise.location(in: tableView)
+        let currentIndexPath = tableView.indexPathForRow(at: currentPoint)
+        guard let indexPath = currentIndexPath else {
+            /// 将生成的cellimage清除
+            removeCellImageView()
+            return
+        }
+        if indexPath.section == 0 {
+            guard indexPath.row < self.modelArray.count else {
+                /// 将生成的cellimage清除
+                removeCellImageView()
+                return
+            }
+        } else {
+            guard indexPath.row < self.secondModelArray.count else {
+                /// 将生成的cellimage清除
+                removeCellImageView()
+                return
+            }
+        }
+        switch recognise.state {
+        case .began:
+            /// 手势开始状态
+            longPressGestureBegan(recognise)
+        case .changed:
+            /// 手势拖拽状态
+            longPressGestureChanged(recognise)
+        default:
+            /// 手势结束状态
+            /// 清空保存的手势点
+            self.touchPoints.removeAll()
+            /// 将隐藏的cell展示
+            if let cell = tableView.cellForRow(at: sourceIndexPath! ){
+                cell.isHidden = false
+            }
+            /// 将生成的cellimage清除
+            removeCellImageView()
+        }
     }
+    /// 长按开始状态调用方法
+    private func longPressGestureBegan(_ recognise: UILongPressGestureRecognizer) {
+        /// 获取长按手势触发时的接触点
+        let currentPoint: CGPoint = recognise.location(in: tableView)
+        /// 根据手势初始点获取需要拖拽的cell.indexPath
+        guard let currentIndexPath = tableView.indexPathForRow(at: currentPoint) else { return }
+        /// 将拖拽cell.index储存
+        sourceIndexPath = currentIndexPath
+        /// 获取拖拽cell
+        currentCell = tableView.cellForRow(at: currentIndexPath ) as? EWDragTableViewCell
+        /// 获取拖拽cell快照
+        cellImageView = getImageView(currentCell)
+        /// 将快照加入到tableView.把拖拽cell覆盖
+        cellImageView.frame = currentCell.frame
+        tableView.addSubview(cellImageView)
+        /// 将选中cell隐藏
+        self.currentCell.isHidden = true
+    }
+    /// 拖拽手势过程中方法,核心方法,实现拖拽动画和数据的更新
+    private func longPressGestureChanged(_ recognise: UILongPressGestureRecognizer) {
+        let selectedPoint: CGPoint = recognise.location(in: tableView)
+        var selectedIndexPath = tableView.indexPathForRow(at: selectedPoint)
+        /// 将手势的点加入touchPoints并保证其内有两个点,即一个初始点,一个结束点,实现cell快照imageView从初始点到结束点的移动动画
+        self.touchPoints.append(selectedPoint)
+        if self.touchPoints.count > 2 {
+            self.touchPoints.remove(at: 0)
+        }
+        var center = cellImageView.center
+        /// 快照center.y值直接移动到手势点Y,可以提醒用户cell已经进入了拖拽状态
+        center.y = selectedPoint.y
+        // 快照x值随触摸点x值改变量移动,保证用户体验
+        let Ppoint = self.touchPoints.first
+        let Npoint = self.touchPoints.last
+        let moveX = Npoint!.x - Ppoint!.x
+        center.x += moveX
+        cellImageView.center = center
+        guard selectedIndexPath != nil else { return }
+        /// 如果手势当前index不同于拖拽cell,则需要moveRow,实现tableView上非拖拽cell的动画,这里还要实现数据源的重置,保证拖拽手势后tableView能正确的展示
+        if selectedIndexPath != sourceIndexPath {
+            tableView.beginUpdates()
+            /// 线程锁
+            objc_sync_enter(self)
+            var cellmode: EWColorModel
+            /// 先更新tableView数据源
+            switch sourceIndexPath!.section{
+            case 0:
+                cellmode = modelArray[sourceIndexPath!.row]
+                self.modelArray.remove(at: sourceIndexPath!.row)
+                if selectedIndexPath!.row < self.modelArray.count {
+                    self.modelArray.insert(cellmode, at: selectedIndexPath!.row)
+                }else {
+                    self.modelArray.append(cellmode)
+                }
+            case 1:
+                cellmode = secondModelArray[sourceIndexPath!.row]
+                self.secondModelArray.remove(at: sourceIndexPath!.row)
+                if selectedIndexPath!.row < self.secondModelArray.count {
+                    self.secondModelArray.insert(cellmode, at: selectedIndexPath!.row)
+                }else {
+                    self.secondModelArray.append(cellmode)
+                }
+            default:
+                break
+            }
+            objc_sync_exit(self)
+            /// 调用moveRow方法,修改被隐藏的选中cell位置,保证选中cell和快照imageView在同一个row,实现动画效果
+            self.tableView.moveRow(at: sourceIndexPath!, to: selectedIndexPath!)
+            tableView.endUpdates()
+            sourceIndexPath = selectedIndexPath
+        }
+    }
+    /// 将生成的cell快照删除
+    private func removeCellImageView() {
+        self.cellImageView.removeFromSuperview()
+        self.cellImageView = UIImageView()
+        tableView.reloadData()
+    }
+    /// 获取cell快照imageView
+    private func getImageView(_ cell: UITableViewCell) -> UIImageView {
+        UIGraphicsBeginImageContextWithOptions(cell.bounds.size, false, 0)
+        cell.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        let imageView = UIImageView(image: image)
+        return imageView
+    }
+}
+//MARK: - UITableView ios11以上拖拽drag,dropDelegate
+extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDelegate{
+    /***
+     *  iOS11以上版本,实现UITableViewDragDelegate,UITableViewDropDelegate代理方法,使用原生方式实现拖拽功能.
+     */
+    @available(iOS 11.0, *)
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        let item = UIDragItem(itemProvider: NSItemProvider(object: UIImage()))
+        return [item]
+    }
+    // MARK: UITableViewDropDelegate
+    @available(iOS 11.0, *)
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+
+    }
+    @available(iOS 11.0, *)
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+    }
+    @available(iOS 11.0, *)
+    func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
+        // Only receive image data
+        return session.canLoadObjects(ofClass: UIImage.self)
+    }
+    /// 这是UITableViewDataSourceDelegate中的方法,但是只有iOS11以上版本拖拽中才用的到,方便查看放在这里.
+    /// 当拖拽完成时调用.将tableView数据源更新
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         objc_sync_enter(self)
         let model: EWColorModel = sourceIndexPath.section == 0 ? modelArray[sourceIndexPath.row] : secondModelArray[sourceIndexPath.row]
@@ -238,36 +303,5 @@ extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
     }
 }
 
-func swap<T>(_ chars: inout [T], _ p: Int, _ q: Int){
-    let char = chars[p]
-    chars.remove(at: p)
-    chars.insert(char, at: q)
-}
 
-//MARK: - UITableView ios11以上拖拽dragDelegate
-extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDelegate{
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let item = UIDragItem(itemProvider: NSItemProvider(object: UIImage()))
-        return [item]
-    }
-    // MARK: UITableViewDropDelegate
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
 
-    }
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
-    }
-    @available(iOS 11.0, *)
-    func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
-        // Only receive image data
-        return session.canLoadObjects(ofClass: UIImage.self)
-    }
-}
-
-struct EWColorModel {
-    var title: String?
-    var color: UIColor?
-}
