@@ -80,9 +80,9 @@
 			isa = PBXGroup;
 			children = (
 				790524EE21896F9300AB19AB /* EWTableViewCellDragDrop */,
+				790524ED21896F9300AB19AB /* Products */,
 				7905250321896FCA00AB19AB /* EWTableViewCellDragDropTests */,
 				7905250E21896FCA00AB19AB /* EWTableViewCellDragDropUITests */,
-				790524ED21896F9300AB19AB /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -439,6 +439,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = B8V4DCL3BF;
 				INFOPLIST_FILE = EWTableViewCellDragDrop/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -457,6 +458,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = B8V4DCL3BF;
 				INFOPLIST_FILE = EWTableViewCellDragDrop/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
