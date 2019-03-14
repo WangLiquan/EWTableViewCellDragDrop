@@ -8,7 +8,6 @@
 
 import UIKit
 
-
 class ViewController: UIViewController {
 
     private let topButton: UIButton = {
@@ -41,7 +40,7 @@ class ViewController: UIViewController {
         /**
          * 本质上.group和.plain类型的tableView对拖拽方法实现并没有影响,这里主要展示的是一个section和两个section的区别,主要区别就在于拖拽实现后tableView数据源的重置上,多个section要复杂一些.
          */
-        if sender.tag == 0{
+        if sender.tag == 0 {
             self.navigationController?.pushViewController(EWPlainTableViewController(), animated: true)
         } else {
             self.navigationController?.pushViewController(EWGroupTableViewController(), animated: true)

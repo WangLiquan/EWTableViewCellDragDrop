@@ -19,10 +19,10 @@ class EWGroupTableViewController: UIViewController {
     /// section1的modelArray
     private var modelArray: [EWColorModel] = {
         var array = [EWColorModel]()
-        for i in 0..<5{
+        for index in 0..<5 {
             var model = EWColorModel()
-            model.title = "1 - \(i)"
-            model.color = colorArr[i]
+            model.title = "1 - \(index)"
+            model.color = colorArr[index]
             array.append(model)
         }
         return array
@@ -30,10 +30,10 @@ class EWGroupTableViewController: UIViewController {
     /// section2的modelArray
     var secondModelArray: [EWColorModel] = {
         var array = [EWColorModel]()
-        for i in 0..<5{
+        for index in 0..<5 {
             var model = EWColorModel()
-            model.title = "2 - \(i)"
-            model.color = colorArr[i]
+            model.title = "2 - \(index)"
+            model.color = colorArr[index]
             array.append(model)
         }
         return array
@@ -50,13 +50,12 @@ class EWGroupTableViewController: UIViewController {
     /// 被手势选中的cell
     private var currentCell:EWDragTableViewCell!
 
-
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         tableView = UITableView(frame: UIScreen.main.bounds, style: .grouped)
         /// 添加三行,阻止tableView.reload方法后的闪动效果
-        tableView.estimatedRowHeight = 0;
+        tableView.estimatedRowHeight = 0
         tableView.estimatedSectionFooterHeight = 0
         tableView.estimatedSectionHeaderHeight = 0
 
@@ -80,19 +79,19 @@ class EWGroupTableViewController: UIViewController {
         }
     }
     /// 为cell注册拖拽方法
-    private func dragCell(cell:UITableViewCell?){
-        if #available(iOS 11.0, *)  {
+    private func dragCell(cell:UITableViewCell?) {
+        if #available(iOS 11.0, *) {
             /// 当cell在拖拽过程中是否允许交互
             cell?.userInteractionEnabledWhileDragging = false
-        }else {
+        } else {
             /// iOS 11.0以下版本,为cell添加长按手势
             let pan = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressGesture))
             cell?.addGestureRecognizer(pan)
         }
     }
 }
-//MARK: - UITableView代理方法
-extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
+// MARK: - UITableView代理方法
+extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
@@ -109,7 +108,7 @@ extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
         var model: EWColorModel
         if indexPath.section == 0 {
             model = modelArray[indexPath.row]
-        }else{
+        } else {
             model = secondModelArray[indexPath.row]
         }
         dragCell(cell: cell)
@@ -118,8 +117,8 @@ extension EWGroupTableViewController:UITableViewDelegate,UITableViewDataSource{
         return cell
     }
 }
-//MARK: - UITableView ios11以下版本拖拽
-extension EWGroupTableViewController{
+// MARK: - UITableView ios11以下版本拖拽
+extension EWGroupTableViewController {
     /***
      *  iOS11以下版本,实际上拖拽的不是cell,而是cell的快照imageView.并且同时将cell隐藏,当拖拽手势结束时,通过moveRow方法调换cell位置,进行数据修改.并且将imageView删除.再将cell展示出来,就实现了拖拽动画.
      */
@@ -157,7 +156,7 @@ extension EWGroupTableViewController{
             /// 清空保存的手势点
             self.touchPoints.removeAll()
             /// 将隐藏的cell展示
-            if let cell = tableView.cellForRow(at: sourceIndexPath! ){
+            if let cell = tableView.cellForRow(at: sourceIndexPath! ) {
                 cell.isHidden = false
             }
             /// 将生成的cellimage清除
@@ -195,9 +194,9 @@ extension EWGroupTableViewController{
         /// 快照center.y值直接移动到手势点Y,可以提醒用户cell已经进入了拖拽状态
         center.y = selectedPoint.y
         // 快照x值随触摸点x值改变量移动,保证用户体验
-        let Ppoint = self.touchPoints.first
-        let Npoint = self.touchPoints.last
-        let moveX = Npoint!.x - Ppoint!.x
+        let nPoint = self.touchPoints.first
+        let pPoint = self.touchPoints.last
+        let moveX = nPoint!.x - pPoint!.x
         center.x += moveX
         cellImageView.center = center
         guard selectedIndexPath != nil else { return }
@@ -208,13 +207,13 @@ extension EWGroupTableViewController{
             objc_sync_enter(self)
             var cellmode: EWColorModel
             /// 先更新tableView数据源
-            switch sourceIndexPath!.section{
+            switch sourceIndexPath!.section {
             case 0:
                 cellmode = modelArray[sourceIndexPath!.row]
                 self.modelArray.remove(at: sourceIndexPath!.row)
                 if selectedIndexPath!.row < self.modelArray.count {
                     self.modelArray.insert(cellmode, at: selectedIndexPath!.row)
-                }else {
+                } else {
                     self.modelArray.append(cellmode)
                 }
             case 1:
@@ -222,7 +221,7 @@ extension EWGroupTableViewController{
                 self.secondModelArray.remove(at: sourceIndexPath!.row)
                 if selectedIndexPath!.row < self.secondModelArray.count {
                     self.secondModelArray.insert(cellmode, at: selectedIndexPath!.row)
-                }else {
+                } else {
                     self.secondModelArray.append(cellmode)
                 }
             default:
@@ -251,8 +250,8 @@ extension EWGroupTableViewController{
         return imageView
     }
 }
-//MARK: - UITableView ios11以上拖拽drag,dropDelegate
-extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDelegate{
+// MARK: - UITableView ios11以上拖拽drag,dropDelegate
+extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDelegate {
     /***
      *  iOS11以上版本,实现UITableViewDragDelegate,UITableViewDropDelegate代理方法,使用原生方式实现拖拽功能.
      */
@@ -282,19 +281,19 @@ extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDele
         let model: EWColorModel = sourceIndexPath.section == 0 ? modelArray[sourceIndexPath.row] : secondModelArray[sourceIndexPath.row]
         if sourceIndexPath.section == 0 {
             modelArray.remove(at: sourceIndexPath.row)
-        }else {
+        } else {
             secondModelArray.remove(at: sourceIndexPath.row)
         }
-        if destinationIndexPath.section == 0{
-            if destinationIndexPath.row > modelArray.count{
+        if destinationIndexPath.section == 0 {
+            if destinationIndexPath.row > modelArray.count {
                 modelArray.append(model)
-            }else{
+            } else {
                 modelArray.insert(model, at: destinationIndexPath.row)
             }
-        }else {
-            if destinationIndexPath.row > secondModelArray.count{
+        } else {
+            if destinationIndexPath.row > secondModelArray.count {
                 secondModelArray.append(model)
-            }else {
+            } else {
                 secondModelArray.insert(model, at: destinationIndexPath.row)
             }
         }
@@ -302,6 +301,3 @@ extension EWGroupTableViewController:UITableViewDragDelegate,UITableViewDropDele
         tableView.reloadData()
     }
 }
-
-
-

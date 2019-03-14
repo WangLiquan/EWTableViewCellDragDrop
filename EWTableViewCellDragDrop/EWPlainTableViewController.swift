@@ -12,10 +12,10 @@ class EWPlainTableViewController: UIViewController {
     private var tableView:UITableView!
     var modelArray: [EWColorModel] = {
         var array = [EWColorModel]()
-        for i in 0..<5{
+        for index in 0..<5 {
             var model = EWColorModel()
-            model.title = "1 - \(i)"
-            model.color = colorArr[i]
+            model.title = "1 - \(index)"
+            model.color = colorArr[index]
             array.append(model)
         }
         return array
@@ -37,7 +37,7 @@ class EWPlainTableViewController: UIViewController {
         self.view.backgroundColor = UIColor.white
         tableView = UITableView(frame: UIScreen.main.bounds, style: .plain)
         /// 添加三行,阻止tableView.reload方法后的闪动效果
-        tableView.estimatedRowHeight = 0;
+        tableView.estimatedRowHeight = 0
         tableView.estimatedSectionFooterHeight = 0
         tableView.estimatedSectionHeaderHeight = 0
 
@@ -48,7 +48,7 @@ class EWPlainTableViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(EWDragTableViewCell.self, forCellReuseIdentifier: EWDragTableViewCell.identifier)
         self.view.addSubview(tableView)
-        
+
         if #available(iOS 11.0, *) {
             tableView.dragDelegate = self
             tableView.dropDelegate = self
@@ -62,17 +62,17 @@ class EWPlainTableViewController: UIViewController {
         }
     }
     /// 为cell注册拖拽方法
-    private func dragCell(cell:UITableViewCell?){
-        if #available(iOS 11.0, *)  {
+    private func dragCell(cell:UITableViewCell?) {
+        if #available(iOS 11.0, *) {
             cell?.userInteractionEnabledWhileDragging = true
-        }else {
+        } else {
             let pan = UILongPressGestureRecognizer(target: self, action: #selector(self.longPressGesture))
             cell?.addGestureRecognizer(pan)
         }
     }
 }
-//MARK: - UITableView代理方法
-extension EWPlainTableViewController:UITableViewDelegate,UITableViewDataSource{
+// MARK: - UITableView代理方法
+extension EWPlainTableViewController:UITableViewDelegate,UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80
     }
@@ -93,8 +93,8 @@ extension EWPlainTableViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     }
 }
-//MARK: - UITableView ios11以下版本拖拽
-extension EWPlainTableViewController{
+// MARK: - UITableView ios11以下版本拖拽
+extension EWPlainTableViewController {
     /***
      *  iOS11以下版本,实际上拖拽的不是cell,而是cell的快照imageView.并且同时将cell隐藏,当拖拽手势结束时,通过moveRow方法调换cell位置,进行数据修改.并且将imageView删除.再将cell展示出来,就实现了拖拽动画.
      */
@@ -124,7 +124,7 @@ extension EWPlainTableViewController{
             /// 清空保存的手势点
             self.touchPoints.removeAll()
             /// 将隐藏的cell展示
-            if let cell = tableView.cellForRow(at: sourceIndexPath! ){
+            if let cell = tableView.cellForRow(at: sourceIndexPath! ) {
                 cell.isHidden = false
             }
             /// 将生成的cellimage清除
@@ -161,9 +161,9 @@ extension EWPlainTableViewController{
         var center = cellImageView.center
         center.y = selectedPoint.y
         // 快照x值随触摸点x值改变量移动,保证用户体验
-        let Ppoint = self.touchPoints.first
-        let Npoint = self.touchPoints.last
-        let moveX = Npoint!.x - Ppoint!.x
+        let pPoint = self.touchPoints.first
+        let nPoint = self.touchPoints.last
+        let moveX = nPoint!.x - pPoint!.x
         center.x += moveX
         cellImageView.center = center
         guard selectedIndexPath != nil else { return }
@@ -178,7 +178,7 @@ extension EWPlainTableViewController{
             self.modelArray.remove(at: sourceIndexPath!.row)
             if selectedIndexPath!.row < self.modelArray.count {
                 self.modelArray.insert(cellmode, at: selectedIndexPath!.row)
-            }else {
+            } else {
                 self.modelArray.append(cellmode)
             }
             objc_sync_exit(self)
@@ -208,8 +208,8 @@ extension EWPlainTableViewController{
         return imageView
     }
 }
-//MARK: - UITableView ios11以上拖拽drag,dropDelegate
-extension EWPlainTableViewController:UITableViewDragDelegate,UITableViewDropDelegate{
+// MARK: - UITableView ios11以上拖拽drag,dropDelegate
+extension EWPlainTableViewController:UITableViewDragDelegate,UITableViewDropDelegate {
     /***
      *  iOS11以上版本,实现UITableViewDragDelegate,UITableViewDropDelegate代理方法,使用原生方式实现拖拽功能.
      *  实际上实现这个代理是可以实现ipad上不同app之间的控件拖拽,因为我们只实现app内的拖拽,所以并不需要太多的处理
@@ -239,9 +239,9 @@ extension EWPlainTableViewController:UITableViewDragDelegate,UITableViewDropDele
         objc_sync_enter(self)
         let model: EWColorModel = modelArray[sourceIndexPath.row]
         modelArray.remove(at: sourceIndexPath.row)
-        if destinationIndexPath.row > modelArray.count{
+        if destinationIndexPath.row > modelArray.count {
             modelArray.append(model)
-        }else{
+        } else {
             modelArray.insert(model, at: destinationIndexPath.row)
         }
         objc_sync_exit(self)
